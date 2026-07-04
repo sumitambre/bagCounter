@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Logo, Avatar } from '../components/Brand.jsx';
 import { CountUp } from '../components/CountUp.jsx';
 import { KPIS, CLAIMS } from '../data/mockData.js';
+import { UploadModal } from '../components/UploadModal.jsx';
 
 const toneStyles = {
   neutral: 'bg-white border-slate-200',
@@ -18,6 +19,7 @@ const valueTone = {
 export default function Dashboard() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('audit');
+  const [uploadOpen, setUploadOpen] = useState(false);
 
   const visibleClaims =
     filter === 'audit' ? CLAIMS.filter((c) => c.status === 'Review Needed') : CLAIMS;
@@ -58,9 +60,17 @@ export default function Dashboard() {
             <h1 className="text-2xl font-bold text-navy-900">Warranty Automation Command Center</h1>
             <p className="text-slate-500 text-sm mt-1">Live queue · {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
           </div>
-          <span className="hidden sm:flex items-center gap-2 text-sm text-titan-600 font-medium">
-            <span className="w-2 h-2 rounded-full bg-titan-500 animate-pulse" /> AI Engine online
-          </span>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setUploadOpen(true)}
+              className="hidden sm:flex items-center px-4 py-2 text-sm bg-titan-500 text-white rounded-lg font-medium hover:bg-titan-600 transition shadow-sm"
+            >
+              + New Claim
+            </button>
+            <span className="hidden sm:flex items-center gap-2 text-sm text-titan-600 font-medium">
+              <span className="w-2 h-2 rounded-full bg-titan-500 animate-pulse" /> AI Engine online
+            </span>
+          </div>
         </div>
 
         {/* KPI grid */}
@@ -155,6 +165,8 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
+
+      <UploadModal open={uploadOpen} onClose={() => setUploadOpen(false)} />
     </div>
   );
 }

@@ -117,23 +117,32 @@ function Legend({ color, label }) {
 
 // --- Line chart (total vs auto) --------------------------------------------
 function LineChart({ data }) {
-  const w = 560, h = 220, pad = 30;
-  const max = Math.max(...data.map((d) => d.claims)) * 1.1;
-  const x = (i) => pad + (i * (w - pad * 2)) / (data.length - 1);
-  const y = (v) => h - pad - (v / max) * (h - pad * 2);
+  const w = 560, h = 234;
+  const padL = 50, padR = 40, padT = 30, padB = 30;
+  const max = 1500;
+  const ticks = [0, 500, 1000, 1500];
+  const x = (i) => padL + (i * (w - padL - padR)) / (data.length - 1);
+  const y = (v) => h - padB - (v / max) * (h - padT - padB);
   const path = (key) => data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${x(i)} ${y(d[key])}`).join(' ');
-  const area = `${path('claims')} L ${x(data.length - 1)} ${h - pad} L ${x(0)} ${h - pad} Z`;
+  const area = `${path('claims')} L ${x(data.length - 1)} ${h - padB} L ${x(0)} ${h - padB} Z`;
+  const fmt = (n) => n.toLocaleString('en-IN');
 
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="w-full">
-      {[0.25, 0.5, 0.75, 1].map((g) => (
-        <line key={g} x1={pad} x2={w - pad} y1={y(max * g)} y2={y(max * g)} stroke="#f1f5f9" strokeWidth="1" />
+      {/* Y-axis gridlines + value labels */}
+      {ticks.map((t) => (
+        <g key={t}>
+          <line x1={padL} x2={w - padR} y1={y(t)} y2={y(t)} stroke="#f1f5f9" strokeWidth="1" />
+          <text x={padL - 8} y={y(t) + 3} textAnchor="end" className="fill-slate-400" fontSize="10">{fmt(t)}</text>
+        </g>
       ))}
       <path d={area} fill="#0f2544" opacity="0.04" />
       <path d={path('claims')} fill="none" stroke="#0f2544" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
       <path d={path('auto')} fill="none" stroke="#00a651" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
       {data.map((d, i) => (
         <g key={d.day}>
+          {/* total-claims value above each point */}
+          <text x={x(i)} y={y(d.claims) - 9} textAnchor="middle" className="fill-navy-900" fontSize="9.5" fontWeight="600">{fmt(d.claims)}</text>
           <circle cx={x(i)} cy={y(d.claims)} r="3.5" fill="#0f2544" />
           <circle cx={x(i)} cy={y(d.auto)} r="3.5" fill="#00a651" />
           <text x={x(i)} y={h - 8} textAnchor="middle" className="fill-slate-400" fontSize="11">{d.day}</text>
@@ -177,18 +186,27 @@ function Donut({ data }) {
 
 // --- Accuracy area chart ----------------------------------------------------
 function AccuracyChart({ data }) {
-  const w = 900, h = 200, pad = 34;
+  const w = 900, h = 210;
+  const padL = 48, padR = 40, padT = 30, padB = 30;
   const min = 78, max = 100;
-  const x = (i) => pad + (i * (w - pad * 2)) / (data.length - 1);
-  const y = (v) => h - pad - ((v - min) / (max - min)) * (h - pad * 2);
+  const ticks = [80, 85, 90, 95, 100];
+  const x = (i) => padL + (i * (w - padL - padR)) / (data.length - 1);
+  const y = (v) => h - padB - ((v - min) / (max - min)) * (h - padT - padB);
   const line = data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${x(i)} ${y(d.accuracy)}`).join(' ');
-  const area = `${line} L ${x(data.length - 1)} ${h - pad} L ${x(0)} ${h - pad} Z`;
+  const area = `${line} L ${x(data.length - 1)} ${h - padB} L ${x(0)} ${h - padB} Z`;
 
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="w-full">
+      {/* Y-axis gridlines + percentage labels */}
+      {ticks.map((t) => (
+        <g key={t}>
+          <line x1={padL} x2={w - padR} y1={y(t)} y2={y(t)} stroke="#f1f5f9" strokeWidth="1" />
+          <text x={padL - 8} y={y(t) + 3} textAnchor="end" className="fill-slate-400" fontSize="10">{t}%</text>
+        </g>
+      ))}
       {/* 90% target line */}
-      <line x1={pad} x2={w - pad} y1={y(90)} y2={y(90)} stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="5 5" />
-      <text x={w - pad} y={y(90) - 6} textAnchor="end" className="fill-amber-500" fontSize="11">90% target</text>
+      <line x1={padL} x2={w - padR} y1={y(90)} y2={y(90)} stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="5 5" />
+      <text x={w - padR} y={y(90) - 6} textAnchor="end" className="fill-amber-500" fontSize="11">90% target</text>
       <path d={area} fill="#00a651" opacity="0.08" />
       <path d={line} fill="none" stroke="#00a651" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
       {data.map((d, i) => (
