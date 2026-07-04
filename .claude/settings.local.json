@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__visualize__read_me",
+      "Bash(python3 -c ' *)",
+      "mcp__visualize__show_widget",
+      "Bash(cd /Users/sumitambre/titanEye+)",
+      "Bash(npm -v)",
+      "Bash(npm install *)",
+      "Bash(npm run *)"
+    ]
+  }
+}
