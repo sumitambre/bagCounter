@@ -3,3 +3,8 @@ dist
 .DS_Store
 *.local
 .vite
+
+# Heavy raw video files (do not push to git)
+*.mov
+/0912_overlay.mp4
+

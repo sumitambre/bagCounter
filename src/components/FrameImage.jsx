@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 
-// Shows a product image, gracefully falling back to a labeled placeholder if
+// Shows a product/CCTV image, gracefully falling back to a labeled placeholder if
 // the file isn't present yet. Bounding boxes are positioned against the ACTUAL
 // rendered image rectangle (measured), so their percentages stay accurate for
 // any image aspect ratio — square, landscape or portrait.
@@ -50,7 +50,7 @@ export function FrameImage({ src, angle, boxes = [], showBoxes = true }) {
             boxes.map((b, i) => (
               <div
                 key={i}
-                className="absolute border-2 border-rose-500 bg-rose-500/20 rounded animate-drawBox cursor-crosshair"
+                className="absolute border-2 border-cement-400 bg-cement-400/20 rounded animate-drawBox cursor-crosshair"
                 style={{
                   left: rect.left + (b.x / 100) * rect.width,
                   top: rect.top + (b.y / 100) * rect.height,
@@ -58,7 +58,7 @@ export function FrameImage({ src, angle, boxes = [], showBoxes = true }) {
                   height: (b.height / 100) * rect.height,
                 }}
               >
-                <span className="absolute -top-6 left-0 whitespace-nowrap bg-rose-500 text-white text-xs px-2 py-0.5 rounded font-bold shadow-lg">
+                <span className="absolute -top-6 left-0 whitespace-nowrap bg-cement-500 text-white text-xs px-2 py-0.5 rounded font-bold shadow-lg">
                   {b.label} ({b.confidence}%)
                 </span>
               </div>
@@ -67,9 +67,9 @@ export function FrameImage({ src, angle, boxes = [], showBoxes = true }) {
       ) : (
         <div className="flex flex-col items-center justify-center text-slate-600 gap-3 animate-fadeIn">
           <svg viewBox="0 0 24 24" className="w-16 h-16 text-slate-700" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <circle cx="7" cy="14" r="4" />
-            <circle cx="17" cy="14" r="4" />
-            <path d="M11 14h2M3 14c-.5-3 .5-5 2.5-5M21 14c.5-3-.5-5-2.5-5" strokeLinecap="round" />
+            <path d="M6 20h12l-1.5-10h-9L6 20z" strokeLinejoin="round" />
+            <path d="M9 10V8a3 3 0 0 1 6 0v2" strokeLinecap="round" />
+            <path d="M9 14h6M9 17h6" strokeLinecap="round" />
           </svg>
           <div className="text-center">
             <p className="text-sm font-medium text-slate-400">{angle} View</p>

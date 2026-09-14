@@ -22,22 +22,22 @@ export default function Login() {
         </div>
 
         <div className="relative z-10 max-w-lg">
-          <p className="text-titan-400 font-semibold tracking-wide uppercase text-sm mb-4">
-            Auditor Console
+          <p className="text-cement-400 font-semibold tracking-wide uppercase text-sm mb-4">
+            Monitoring Console
           </p>
           <h1 className="text-4xl lg:text-5xl font-extrabold leading-tight">
-            Warranty claims,
+            Cement bags,
             <br />
-            <span className="text-titan-500">adjudicated by AI.</span>
+            <span className="text-cement-500">counted by AI.</span>
           </h1>
           <p className="text-slate-400 mt-6 text-lg leading-relaxed">
-            Computer-vision defect detection across the four-angle frame matrix —
-            so your team reviews only what truly needs a human eye.
+            Real-time computer vision tracking for cement bag transfers —
+            count every bag moving in or out of your loading bays with precision.
           </p>
         </div>
 
         <div className="relative z-10 flex flex-wrap gap-3">
-          {['94.2% avg confidence', 'Sub-5s processing', 'Role-based access'].map((chip) => (
+          {['99.2% counting accuracy', 'Real-time tracking', 'In/Out counting'].map((chip) => (
             <span
               key={chip}
               className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm text-slate-300"
@@ -54,33 +54,33 @@ export default function Login() {
           <h2 className="text-2xl font-bold text-navy-900">Sign in</h2>
           <p className="text-slate-500 mt-1 mb-8 text-sm">Welcome back. Please enter your credentials.</p>
 
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">Auditor ID</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">Operator ID</label>
           <input
             type="text"
-            defaultValue="auditor@titaneyeplus.com"
-            className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-titan-500 focus:ring-2 focus:ring-titan-500/20 outline-none transition mb-4"
+            defaultValue="operator@cementflow.com"
+            className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-cement-500 focus:ring-2 focus:ring-cement-500/20 outline-none transition mb-4"
           />
 
           <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
           <input
             type="password"
             defaultValue="demo1234"
-            className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-titan-500 focus:ring-2 focus:ring-titan-500/20 outline-none transition mb-4"
+            className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-cement-500 focus:ring-2 focus:ring-cement-500/20 outline-none transition mb-4"
           />
 
           <div className="flex items-center justify-between text-sm mb-6">
             <label className="flex items-center gap-2 text-slate-600 cursor-pointer">
-              <input type="checkbox" defaultChecked className="rounded text-titan-500 focus:ring-titan-500" />
+              <input type="checkbox" defaultChecked className="rounded text-cement-500 focus:ring-cement-500" />
               Remember me
             </label>
-            <a href="#" className="text-titan-600 font-medium hover:underline">
+            <a href="#" className="text-cement-600 font-medium hover:underline">
               Forgot password?
             </a>
           </div>
 
           <button
             type="submit"
-            className="w-full bg-titan-500 hover:bg-titan-600 text-white font-semibold py-3 rounded-lg transition shadow-sm shadow-titan-500/30"
+            className="w-full bg-cement-500 hover:bg-cement-600 text-white font-semibold py-3 rounded-lg transition shadow-sm shadow-cement-500/30"
           >
             Sign In
           </button>
@@ -99,7 +99,7 @@ export default function Login() {
               <rect x="3" y="11" width="18" height="10" rx="2" />
               <path d="M7 11V7a5 5 0 0110 0v4" />
             </svg>
-            Continue with Titan SSO
+            Continue with Company SSO
           </button>
 
           <p className="text-center text-xs text-slate-400 mt-8">
