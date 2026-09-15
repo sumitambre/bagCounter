@@ -16,6 +16,19 @@ export const BAG_LOADING_EVENTS = [
   {
     id: 1,
     bagNumber: 1,
+    t: 0.0,
+    timestamp: '00:00',
+    frame: 0,
+    trackId: 'Base',
+    confidence: 99.8,
+    weightKg: 50.0,
+    flowRateBpm: 0.0,
+    status: 'Pre-loaded',
+    note: 'Initial bag in truck bed before chute loading starts'
+  },
+  {
+    id: 2,
+    bagNumber: 2,
     t: 25.5,
     timestamp: '00:25',
     frame: 765,
@@ -27,8 +40,8 @@ export const BAG_LOADING_EVENTS = [
     note: 'Chute entry clean · Verified on rear gate'
   },
   {
-    id: 2,
-    bagNumber: 2,
+    id: 3,
+    bagNumber: 3,
     t: 55.3,
     timestamp: '00:55',
     frame: 1658,
@@ -40,8 +53,8 @@ export const BAG_LOADING_EVENTS = [
     note: 'Uniform slide trajectory'
   },
   {
-    id: 3,
-    bagNumber: 3,
+    id: 4,
+    bagNumber: 4,
     t: 80.5,
     timestamp: '01:20',
     frame: 2414,
@@ -53,8 +66,8 @@ export const BAG_LOADING_EVENTS = [
     note: 'Aligned center-chute'
   },
   {
-    id: 4,
-    bagNumber: 4,
+    id: 5,
+    bagNumber: 5,
     t: 111.0,
     timestamp: '01:51',
     frame: 3330,
@@ -66,8 +79,8 @@ export const BAG_LOADING_EVENTS = [
     note: 'High contrast detection'
   },
   {
-    id: 5,
-    bagNumber: 5,
+    id: 6,
+    bagNumber: 6,
     t: 133.8,
     timestamp: '02:13',
     frame: 4014,
@@ -79,8 +92,8 @@ export const BAG_LOADING_EVENTS = [
     note: 'Full chute traverse logged'
   },
   {
-    id: 6,
-    bagNumber: 6,
+    id: 7,
+    bagNumber: 7,
     t: 144.9,
     timestamp: '02:25',
     frame: 4346,
@@ -92,8 +105,8 @@ export const BAG_LOADING_EVENTS = [
     note: 'Fast transfer interval (11s)'
   },
   {
-    id: 7,
-    bagNumber: 7,
+    id: 8,
+    bagNumber: 8,
     t: 161.6,
     timestamp: '02:41',
     frame: 4848,
@@ -105,8 +118,8 @@ export const BAG_LOADING_EVENTS = [
     note: 'Truck bed placement confirmed'
   },
   {
-    id: 8,
-    bagNumber: 8,
+    id: 9,
+    bagNumber: 9,
     t: 192.7,
     timestamp: '03:12',
     frame: 5780,
@@ -118,8 +131,8 @@ export const BAG_LOADING_EVENTS = [
     note: 'Optimal speed chute slide'
   },
   {
-    id: 9,
-    bagNumber: 9,
+    id: 10,
+    bagNumber: 10,
     t: 205.3,
     timestamp: '03:25',
     frame: 6158,
@@ -131,8 +144,8 @@ export const BAG_LOADING_EVENTS = [
     note: 'No tilt or tear detected'
   },
   {
-    id: 10,
-    bagNumber: 10,
+    id: 11,
+    bagNumber: 11,
     t: 224.4,
     timestamp: '03:44',
     frame: 6733,
@@ -144,8 +157,8 @@ export const BAG_LOADING_EVENTS = [
     note: 'Batch 10 milestone reached'
   },
   {
-    id: 11,
-    bagNumber: 11,
+    id: 12,
+    bagNumber: 12,
     t: 294.2,
     timestamp: '04:54',
     frame: 8827,
@@ -158,4 +171,4 @@ export const BAG_LOADING_EVENTS = [
   }
 ];
 
-export const TOTAL_BAGS_IN_SESSION = BAG_LOADING_EVENTS.length;
+export const TOTAL_BAGS_IN_SESSION = BAG_LOADING_EVENTS.length; // 12 bags

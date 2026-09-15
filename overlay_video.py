@@ -35,6 +35,9 @@ LINE_ACTIVE     = (0, 255, 255)       # Highlight color when crossing
 LINE_START = (890, 160)
 LINE_END   = (630, 620)
 
+# Pre-loaded baseline bag in truck bed (bottom-left)
+PRELOADED_BBOX = (195, 735, 365, 855)
+
 BOX_THICKNESS   = 3
 FONT            = cv2.FONT_HERSHEY_SIMPLEX
 FONT_SCALE      = 0.7
@@ -42,8 +45,9 @@ FONT_THICKNESS  = 2
 LABEL_PAD       = 8
 CORNER_LEN      = 22
 
-# Exact 11 crossing frame indices
+# Exact 11 chute crossing frame indices (Bags #2 to #12)
 CROSSING_FRAMES = [765, 1658, 2414, 3330, 4014, 4346, 4848, 5780, 6158, 6733, 8827]
+TOTAL_BAGS = 12
 
 
 def draw_corner_brackets(frame, x1, y1, x2, y2, color, thickness=3, length=22):
@@ -60,6 +64,28 @@ def draw_corner_brackets(frame, x1, y1, x2, y2, color, thickness=3, length=22):
     # Bottom-right
     cv2.line(frame, (x2, y2), (x2 - length, y2), color, thickness)
     cv2.line(frame, (x2, y2), (x2, y2 - length), color, thickness)
+
+
+def draw_preloaded_bag(frame):
+    """Draw bounding box on the pre-loaded bag resting in the truck bed at session start."""
+    x1, y1, x2, y2 = PRELOADED_BBOX
+    color = (0, 180, 240)
+
+    # Subtle box
+    cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+    draw_corner_brackets(frame, x1, y1, x2, y2, color, thickness=BOX_THICKNESS, length=18)
+
+    label = "#1 cement bag (in truck)"
+    (tw, th), _ = cv2.getTextSize(label, FONT, 0.55, 2)
+    lx1 = x1
+    ly1 = y1 - th - 2 * LABEL_PAD
+    lx2 = x1 + tw + 2 * LABEL_PAD
+    ly2 = y1
+
+    cv2.rectangle(frame, (lx1, ly1), (lx2, ly2), color, -1)
+    text_x = lx1 + LABEL_PAD
+    text_y = ly2 - LABEL_PAD
+    cv2.putText(frame, label, (text_x, text_y), FONT, 0.55, (0, 0, 0), 2, cv2.LINE_AA)
 
 
 def draw_detection(frame, det, classes):
@@ -141,7 +167,6 @@ def draw_counting_line(frame, is_crossing):
     cv2.putText(frame, label, (mx - tw//2, my - 2), FONT, 0.45, line_col, 1, cv2.LINE_AA)
 
     # Direction arrow pointing into truck (IN / LOADED)
-    # Normal to line pointing left-down into truck: (-dy, dx)
     arrow_start = (mx + 35, my + 15)
     arrow_end = (mx - 25, my + 15)
     cv2.arrowedLine(frame, arrow_start, arrow_end, (0, 255, 150), 2, tipLength=0.35)
@@ -158,8 +183,8 @@ def draw_hud(frame, frame_idx, num_detections, bags_loaded, total_frames, fps, i
     lines = [
         f"Frame  {frame_idx}/{total_frames}",
         f"Time   {time_str}",
-        f"Active {num_detections} detected",
-        f"Loaded {bags_loaded}/11 bags",
+        f"Active {num_detections} in chute",
+        f"Loaded {bags_loaded}/{TOTAL_BAGS} bags",
     ]
 
     panel_w, panel_h = 320, 130
@@ -180,7 +205,7 @@ def draw_hud(frame, frame_idx, num_detections, bags_loaded, total_frames, fps, i
         cv2.circle(frame, (panel_w - 15, 30), 8, (0, 255, 120), 1)
 
     # Bag crossing toast animation in video
-    if is_crossing:
+    if is_crossing and bags_loaded >= 2:
         toast_w, toast_h = 240, 45
         tx, ty = (frame.shape[1] - toast_w) // 2, 40
         overlay2 = frame.copy()
@@ -231,6 +256,7 @@ def main():
     print(f"\nWriting overlay video to: {VIDEO_OUT}")
     print(f"Single detection color: {DETECTION_COLOR}")
     print(f"Counting line: {LINE_START} -> {LINE_END}")
+    print(f"Total bags tracked: {TOTAL_BAGS} (1 pre-loaded + 11 chute loading events)")
     print(f"Processing {total} frames...\n")
 
     frame_idx = 0
@@ -239,11 +265,14 @@ def main():
         if not ret:
             break
 
-        # Bags loaded up to this frame
-        bags_loaded = sum(1 for cf in CROSSING_FRAMES if frame_idx >= cf)
+        # 1 pre-loaded bag at session start + bags that crossed the chute so far
+        bags_loaded = 1 + sum(1 for cf in CROSSING_FRAMES if frame_idx >= cf)
 
         # Is currently crossing (within 20 frames of crossing)
         is_crossing = any(0 <= frame_idx - cf <= 20 for cf in CROSSING_FRAMES)
+
+        # Draw pre-loaded bag in truck bed
+        draw_preloaded_bag(frame)
 
         # Draw counting line
         draw_counting_line(frame, is_crossing)
@@ -260,7 +289,7 @@ def main():
 
         if frame_idx % 1000 == 0 or frame_idx == total - 1:
             pct = (frame_idx + 1) / total * 100
-            print(f"  [{pct:5.1f}%] Frame {frame_idx + 1}/{total} | Bags loaded: {bags_loaded}/11")
+            print(f"  [{pct:5.1f}%] Frame {frame_idx + 1}/{total} | Bags loaded: {bags_loaded}/{TOTAL_BAGS}")
 
         frame_idx += 1
 

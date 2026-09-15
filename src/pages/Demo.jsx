@@ -44,7 +44,7 @@ export default function Demo() {
   const [isMuted, setIsMuted] = useState(true);
   const [soundAlerts, setSoundAlerts] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
-  const [lastCount, setLastCount] = useState(0);
+  const [lastCount, setLastCount] = useState(1);
   const [justLoadedId, setJustLoadedId] = useState(null);
 
   // Filter bags loaded based on video's current time
@@ -53,14 +53,14 @@ export default function Demo() {
 
   // Active bag in transit (within 2.5 seconds before crossing)
   const activeBagInTransit = BAG_LOADING_EVENTS.find(
-    (b) => currentTime >= b.t - 2.5 && currentTime < b.t
+    (b) => b.id > 1 && currentTime >= b.t - 2.5 && currentTime < b.t
   );
 
   // Trigger pulse and optional sound alert when count increases
   useEffect(() => {
     if (count > lastCount) {
       const newlyLoaded = loadedBags[loadedBags.length - 1];
-      if (newlyLoaded) {
+      if (newlyLoaded && newlyLoaded.id > 1) {
         setJustLoadedId(newlyLoaded.id);
         if (soundAlerts) playChime();
         setTimeout(() => setJustLoadedId(null), 2500);
@@ -105,9 +105,12 @@ export default function Demo() {
   };
 
   const jumpToBag = (bagEvent) => {
-    // Jump to 2 seconds before the crossing so user sees the slide & detection
-    const jumpTime = Math.max(0, bagEvent.t - 2.2);
-    handleSeek(jumpTime);
+    if (bagEvent.id === 1) {
+      handleSeek(0);
+    } else {
+      const jumpTime = Math.max(0, bagEvent.t - 2.2);
+      handleSeek(jumpTime);
+    }
     if (videoRef.current && videoRef.current.paused) {
       videoRef.current.play();
       setIsPlaying(true);
@@ -353,7 +356,7 @@ export default function Demo() {
                         : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'
                     }`}
                   >
-                    #{bag.id} <span className="font-normal text-[10px] text-slate-500">({bag.timestamp})</span>
+                    #{bag.id} <span className="font-normal text-[10px] text-slate-500">{bag.id === 1 ? '(In Truck)' : `(${bag.timestamp})`}</span>
                   </button>
                 );
               })}
@@ -433,9 +436,6 @@ export default function Demo() {
                 {loadedBags.length === 0 ? (
                   <div className="py-12 text-center text-slate-500 text-sm">
                     <p>No bags loaded yet.</p>
-                    <p className="text-xs text-slate-600 mt-1">
-                      Play the video or jump to Bag #1 (00:25) to see live detection.
-                    </p>
                   </div>
                 ) : (
                   [...loadedBags].reverse().map((bag) => (
@@ -455,7 +455,7 @@ export default function Demo() {
                             Cement Bag (50kg)
                           </p>
                           <p className="text-[10px] text-slate-500 font-mono">
-                            Time {bag.timestamp} · Track #{bag.trackId}
+                            {bag.id === 1 ? 'Pre-loaded in Truck Bed' : `Time ${bag.timestamp} · Track #${bag.trackId}`}
                           </p>
                         </div>
                       </div>
