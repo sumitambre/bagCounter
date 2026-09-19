@@ -18,11 +18,15 @@ RUN apk add --no-cache python3 py3-pip && \
 # Copy built React app
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Download the overlay video (114 MB) from Google Drive into the dist folder
-# File ID: 1kJWNR9RY6f3t6dthpYr8Wv8412kHE07S
-RUN mkdir -p /usr/share/nginx/html/videos && \
-    gdown 1kJWNR9RY6f3t6dthpYr8Wv8412kHE07S \
-          -O /usr/share/nginx/html/videos/0912_overlay_h264.mp4
+# Download the overlay video from Google Drive and compress to 720p for fast loading
+RUN apk add --no-cache ffmpeg && \
+    mkdir -p /usr/share/nginx/html/videos && \
+    gdown 1kJWNR9RY6f3t6dthpYr8Wv8412kHE07S -O /tmp/overlay_raw.mp4 && \
+    ffmpeg -y -i /tmp/overlay_raw.mp4 \
+      -vf "scale=1280:720" -vcodec libx264 -pix_fmt yuv420p \
+      -crf 28 -preset fast -movflags faststart \
+      /usr/share/nginx/html/videos/0912_overlay_h264.mp4 && \
+    rm /tmp/overlay_raw.mp4
 
 # SPA routing config
 COPY nginx.conf /etc/nginx/conf.d/default.conf

@@ -35,6 +35,7 @@ export default function Demo() {
   const [duration, setDuration] = useState(DEMO_VIDEO.duration);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [soundAlerts, setSoundAlerts] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [lastCount, setLastCount] = useState(1);
@@ -152,9 +153,21 @@ export default function Demo() {
                 src={DEMO_VIDEO.src}
                 className="w-full h-full object-contain cursor-pointer"
                 playsInline autoPlay muted={isMuted} loop
+                preload="auto"
+                onCanPlay={() => setIsLoading(false)}
+                onWaiting={() => setIsLoading(true)}
                 onTimeUpdate={handleTimeUpdate}
                 onClick={togglePlay}
               />
+
+              {/* Loading spinner */}
+              {isLoading && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/80 z-10">
+                  <div className="w-12 h-12 border-4 border-amber-500/30 border-t-amber-400 rounded-full animate-spin mb-3" />
+                  <p className="text-slate-400 text-sm font-medium">Loading video...</p>
+                  <p className="text-slate-600 text-xs mt-1">Overlay video · 1280×720</p>
+                </div>
+              )}
 
               {justLoadedId && (
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-emerald-500/95 text-slate-950 px-5 py-2 rounded-full font-extrabold text-sm shadow-xl flex items-center gap-2.5 animate-bounce pointer-events-none">
