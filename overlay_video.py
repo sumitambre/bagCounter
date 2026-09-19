@@ -271,9 +271,6 @@ def main():
         # Is currently crossing (within 20 frames of crossing)
         is_crossing = any(0 <= frame_idx - cf <= 20 for cf in CROSSING_FRAMES)
 
-        # Draw pre-loaded bag in truck bed
-        draw_preloaded_bag(frame)
-
         # Draw counting line
         draw_counting_line(frame, is_crossing)
 
