@@ -29,40 +29,16 @@ function formatTime(seconds) {
 
 export default function Demo() {
   const navigate = useNavigate();
+  const videoRef = useRef(null);
+
   const [currentTime, setCurrentTime] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(DEMO_VIDEO.duration);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
   const [soundAlerts, setSoundAlerts] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
   const [lastCount, setLastCount] = useState(1);
   const [justLoadedId, setJustLoadedId] = useState(null);
-  const timerRef = useRef(null);
-  const startWallRef = useRef(null);
-  const accumulatedRef = useRef(0);
-  const duration = DEMO_VIDEO.duration;
-
-  useEffect(() => {
-    if (isPlaying) {
-      startWallRef.current = performance.now();
-      timerRef.current = setInterval(() => {
-        const elapsed = (performance.now() - startWallRef.current) / 1000;
-        const t = Math.min(accumulatedRef.current + elapsed, duration);
-        setCurrentTime(t);
-        if (t >= duration) {
-          accumulatedRef.current = duration;
-          setIsPlaying(false);
-        }
-      }, 100);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
-      if (startWallRef.current != null) {
-        accumulatedRef.current = Math.min(
-          accumulatedRef.current + (performance.now() - startWallRef.current) / 1000,
-          duration
-        );
-        startWallRef.current = null;
-      }
-    }
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [isPlaying, duration]);
 
   const loadedBags = BAG_LOADING_EVENTS.filter((b) => currentTime >= b.t);
   const count = loadedBags.length;
@@ -83,21 +59,33 @@ export default function Demo() {
     setLastCount(count);
   }, [count]); // eslint-disable-line
 
-  const handleReset = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    accumulatedRef.current = 0;
-    startWallRef.current = null;
-    setCurrentTime(0);
-    setIsPlaying(false);
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      setCurrentTime(videoRef.current.currentTime);
+      if (videoRef.current.duration && !isNaN(videoRef.current.duration)) {
+        setDuration(videoRef.current.duration);
+      }
+    }
+  };
+
+  const togglePlay = () => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) { videoRef.current.play(); setIsPlaying(true); }
+    else { videoRef.current.pause(); setIsPlaying(false); }
+  };
+
+  const handleSeek = (newTime) => {
+    if (videoRef.current) { videoRef.current.currentTime = newTime; setCurrentTime(newTime); }
+  };
+
+  const changePlaybackRate = (rate) => {
+    if (videoRef.current) { videoRef.current.playbackRate = rate; setPlaybackRate(rate); }
   };
 
   const jumpToBag = (bagEvent) => {
-    const target = bagEvent.id === 1 ? 0 : Math.max(0, bagEvent.t - 2.2);
-    if (timerRef.current) clearInterval(timerRef.current);
-    accumulatedRef.current = target;
-    startWallRef.current = null;
-    setCurrentTime(target);
-    setIsPlaying(true);
+    const jumpTime = bagEvent.id === 1 ? 0 : Math.max(0, bagEvent.t - 2.2);
+    handleSeek(jumpTime);
+    if (videoRef.current && videoRef.current.paused) { videoRef.current.play(); setIsPlaying(true); }
   };
 
   const jumpToNextBag = () => {
@@ -146,7 +134,7 @@ export default function Demo() {
               <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M5 4l10 8-10 8V4zm11 0h3v16h-3V4z" /></svg>
               Next Bag
             </button>
-            <button onClick={handleReset} className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-medium text-sm transition border border-slate-700">Reset 0:00</button>
+            <button onClick={() => handleSeek(0)} className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-medium text-sm transition border border-slate-700">Reset 0:00</button>
             <button
               onClick={() => setSoundAlerts(!soundAlerts)}
               className={"px-3 py-2 rounded-lg font-medium text-sm transition border flex items-center gap-1.5 " + (soundAlerts ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-200')}
@@ -158,15 +146,16 @@ export default function Demo() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className="lg:col-span-8 flex flex-col gap-3">
-            <div className="relative aspect-video bg-black rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
-              <iframe
-                src={DEMO_VIDEO.gdriveSrc}
-                className="w-full h-full"
-                allow="autoplay"
-                allowFullScreen
-                title="Bag Loading Detection Video"
-                style={{ border: 'none' }}
+            <div className="relative aspect-video bg-black rounded-2xl overflow-hidden border border-slate-800 shadow-2xl group">
+              <video
+                ref={videoRef}
+                src={DEMO_VIDEO.src}
+                className="w-full h-full object-contain cursor-pointer"
+                playsInline autoPlay muted={isMuted} loop
+                onTimeUpdate={handleTimeUpdate}
+                onClick={togglePlay}
               />
+
               {justLoadedId && (
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-emerald-500/95 text-slate-950 px-5 py-2 rounded-full font-extrabold text-sm shadow-xl flex items-center gap-2.5 animate-bounce pointer-events-none">
                   <span className="w-2.5 h-2.5 rounded-full bg-slate-950" />
@@ -179,40 +168,47 @@ export default function Demo() {
                   BAG IN CHUTE TRANSIT (APPROACHING LINE)
                 </div>
               )}
-            </div>
 
-            <div className="bg-slate-950/70 p-3 rounded-xl border border-slate-800 flex flex-col gap-2">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setIsPlaying((p) => !p)}
-                  className="p-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold transition flex items-center gap-1.5 text-sm px-4"
-                >
-                  {isPlaying ? (
-                    <><svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>Pause Counter</>
-                  ) : (
-                    <><svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><polygon points="5 3 19 12 5 21 5 3" /></svg>Start Counter</>
-                  )}
-                </button>
-                <span className="font-mono text-slate-300 text-sm">{formatTime(currentTime)} / {formatTime(duration)}</span>
-                <span className="ml-auto text-xs text-amber-400/70 italic hidden md:block">
-                  ▶ Press Play on video above, then Start Counter together
-                </span>
-              </div>
-              <div className="relative w-full h-3 bg-slate-800 rounded-full overflow-visible">
-                <div className="h-full bg-gradient-to-r from-amber-500 to-emerald-400 rounded-full transition-all duration-100" style={{ width: progressPct + '%' }} />
-                {BAG_LOADING_EVENTS.map((bag) => {
-                  const dotPct = (bag.t / duration) * 100;
-                  const isPassed = currentTime >= bag.t;
-                  return (
-                    <button
-                      key={bag.id}
-                      onClick={() => jumpToBag(bag)}
-                      style={{ left: dotPct + '%' }}
-                      className={"absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 w-3 h-3 rounded-full border-2 transition hover:scale-150 " + (isPassed ? 'bg-emerald-400 border-slate-900 shadow-md shadow-emerald-500/50' : 'bg-amber-400 border-slate-900')}
-                      title={"Bag #" + bag.id + " (" + bag.timestamp + ")"}
-                    />
-                  );
-                })}
+              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-4 flex flex-col gap-2 opacity-95 group-hover:opacity-100 transition">
+                <div className="relative w-full h-4 flex items-center">
+                  <input
+                    type="range" min={0} max={duration || DEMO_VIDEO.duration} step={0.1} value={currentTime}
+                    onChange={(e) => handleSeek(parseFloat(e.target.value))}
+                    className="w-full h-1.5 bg-slate-700/80 rounded-lg appearance-none cursor-pointer accent-amber-500 z-10"
+                  />
+                  {BAG_LOADING_EVENTS.map((bag) => {
+                    const dotPct = (bag.t / (duration || DEMO_VIDEO.duration)) * 100;
+                    const isPassed = currentTime >= bag.t;
+                    return (
+                      <button key={bag.id} onClick={() => jumpToBag(bag)} style={{ left: dotPct + '%' }}
+                        className={"absolute -translate-x-1/2 z-20 w-3 h-3 rounded-full border-2 transition hover:scale-150 " + (isPassed ? 'bg-emerald-400 border-slate-900 shadow-md shadow-emerald-500/50' : 'bg-amber-400 border-slate-900')}
+                        title={"Bag #" + bag.id + " (" + bag.timestamp + ") - Click to jump"}
+                      />
+                    );
+                  })}
+                </div>
+                <div className="flex items-center justify-between text-xs text-slate-300">
+                  <div className="flex items-center gap-3">
+                    <button onClick={togglePlay} className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white transition">
+                      {isPlaying
+                        ? <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                        : <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><polygon points="5 3 19 12 5 21 5 3"/></svg>}
+                    </button>
+                    <button onClick={() => setIsMuted(!isMuted)} className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+                      {isMuted ? '🔇' : '🔊'}
+                    </button>
+                    <span className="font-mono text-slate-200">{formatTime(currentTime)} / {formatTime(duration || DEMO_VIDEO.duration)}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-slate-900/80 px-2 py-1 rounded-lg border border-slate-800">
+                    <span className="text-[10px] text-slate-400 mr-1 font-semibold uppercase">Speed</span>
+                    {[0.5, 1, 1.5, 2].map((rate) => (
+                      <button key={rate} onClick={() => changePlaybackRate(rate)}
+                        className={"px-1.5 py-0.5 rounded text-[11px] font-bold transition " + (playbackRate === rate ? 'bg-amber-500 text-slate-950' : 'text-slate-400 hover:text-white')}>
+                        {rate}x
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -221,11 +217,8 @@ export default function Demo() {
               {BAG_LOADING_EVENTS.map((bag) => {
                 const isPassed = currentTime >= bag.t;
                 return (
-                  <button
-                    key={bag.id}
-                    onClick={() => jumpToBag(bag)}
-                    className={"px-2.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition border " + (isPassed ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30' : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700')}
-                  >
+                  <button key={bag.id} onClick={() => jumpToBag(bag)}
+                    className={"px-2.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition border " + (isPassed ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30' : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700')}>
                     #{bag.id} <span className="font-normal text-[10px] text-slate-500">{bag.id === 1 ? '(In Truck)' : '(' + bag.timestamp + ')'}</span>
                   </button>
                 );
@@ -274,16 +267,11 @@ export default function Demo() {
               </div>
               <div className="p-3 overflow-y-auto flex flex-col gap-2 flex-1 divide-y divide-slate-800/40">
                 {loadedBags.length === 0 ? (
-                  <div className="py-12 text-center text-slate-500 text-sm">
-                    <p>Press <strong className="text-amber-400">Start Counter</strong> to begin.</p>
-                  </div>
+                  <div className="py-12 text-center text-slate-500 text-sm"><p>No bags loaded yet.</p></div>
                 ) : (
                   [...loadedBags].reverse().map((bag) => (
-                    <div
-                      key={bag.id}
-                      onClick={() => jumpToBag(bag)}
-                      className={"pt-2.5 pb-1 px-3 rounded-lg cursor-pointer transition flex items-center justify-between hover:bg-slate-900 " + (bag.id === justLoadedId ? 'bg-emerald-950/40 border border-emerald-500/40' : '')}
-                    >
+                    <div key={bag.id} onClick={() => jumpToBag(bag)}
+                      className={"pt-2.5 pb-1 px-3 rounded-lg cursor-pointer transition flex items-center justify-between hover:bg-slate-900 " + (bag.id === justLoadedId ? 'bg-emerald-950/40 border border-emerald-500/40' : '')}>
                       <div className="flex items-center gap-3">
                         <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs border border-amber-500/30">#{bag.id}</div>
                         <div>
