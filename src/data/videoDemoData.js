@@ -2,6 +2,7 @@
 
 export const DEMO_VIDEO = {
   src: '/videos/0912_overlay_h264.mp4',
+  gdriveSrc: 'https://drive.google.com/file/d/1kJWNR9RY6f3t6dthpYr8Wv8412kHE07S/preview',
   duration: 297.16, // 4m 57s (8915 frames @ 30fps)
   totalFrames: 8915,
   fps: 30,
