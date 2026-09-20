@@ -57,7 +57,7 @@ export default function Login() {
           <label className="block text-sm font-medium text-slate-700 mb-1.5">Operator ID</label>
           <input
             type="text"
-            defaultValue="operator@cementflow.com"
+            defaultValue="operator@ascentiq.ai"
             className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-cement-500 focus:ring-2 focus:ring-cement-500/20 outline-none transition mb-4"
           />
 

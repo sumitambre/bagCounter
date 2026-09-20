@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        // CementFlow brand palette – warm industrial amber/orange
+        // AscentiQ AI brand palette – warm industrial amber/orange
         cement: {
           50: '#fffbeb',
           100: '#fef3c7',

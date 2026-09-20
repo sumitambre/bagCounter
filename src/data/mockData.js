@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// CEMENTFLOW – DEMO MOCK DATA
+// ASCENTIQ AI – DEMO MOCK DATA
 // Realistic cement bag counting and transfer monitoring data.
 // Replace with actual JSON data when available.
 // ---------------------------------------------------------------------------
